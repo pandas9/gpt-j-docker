@@ -45,8 +45,8 @@ class GPTJModel:
         self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
         self.total_batch = per_replica_batch * jax.device_count() // cores_per_replica
         self.network = CausalTransformer(params)
-        network.state = read_ckpt_lowmem(self.network.state, "./checkpoints/step_383500/", devices.shape[1])
-        network.state = network.move_xmap(self.network.state, np.zeros(cores_per_replica))
+        self.network.state = read_ckpt_lowmem(self.network.state, "./checkpoints/step_383500/", devices.shape[1])
+        self.network.state = network.move_xmap(self.network.state, np.zeros(cores_per_replica))
 
     def infer(self, context, top_p=0.9, temp=1.0, gen_len=512):
         tokens = self.tokenizer.encode(context)
