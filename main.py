@@ -14,7 +14,7 @@ import argparse
 
 class GPTJModel:
     def __init__(self):
-        self.params = {
+        params = {
             "layers": 28,
             "d_model": 4096,
             "n_heads": 16,
@@ -32,7 +32,6 @@ class GPTJModel:
         seq = params["seq"]
 
         params["sampler"] = nucleaus_sample
-
         # scale the optimizer to 0 from the model (as we don't need them for inference)
         params["optimizer"] = optax.scale(0)
 
@@ -43,24 +42,24 @@ class GPTJModel:
 
         print('Loading checkpoint..')
 
-        tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
-        total_batch = per_replica_batch * jax.device_count() # cores_per_replica
-        network = CausalTransformer(params)
-        network.state = read_ckpt_lowmem(network.state, "./checkpoints/step_383500/", devices.shape[1])
-        network.state = network.move_xmap(network.state, np.zeros(cores_per_replica))
+        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
+        self.total_batch = per_replica_batch * jax.device_count() // cores_per_replica
+        self.network = CausalTransformer(params)
+        network.state = read_ckpt_lowmem(self.network.state, "./checkpoints/step_383500/", devices.shape[1])
+        network.state = network.move_xmap(self.network.state, np.zeros(cores_per_replica))
 
     def infer(self, context, top_p=0.9, temp=1.0, gen_len=512):
-        tokens = tokenizer.encode(context)
+        tokens = self.tokenizer.encode(context)
 
         provided_ctx = len(tokens)
         pad_amount = seq - provided_ctx
 
         padded_tokens = np.pad(tokens, ((pad_amount, 0),)).astype(np.uint32)
-        batched_tokens = np.array([padded_tokens] * total_batch)
-        length = np.ones(total_batch, dtype=np.uint32) * len(tokens)
+        batched_tokens = np.array([padded_tokens] * self.total_batch)
+        length = np.ones(self.total_batch, dtype=np.uint32) * len(tokens)
 
         start = time.time()
-        output = network.generate(batched_tokens, length, gen_len, {"top_p": np.ones(total_batch) * top_p, "temp": np.ones(total_batch) * temp})
+        output = self.network.generate(batched_tokens, length, gen_len, {"top_p": np.ones(self.total_batch) * top_p, "temp": np.ones(self.total_batch) * temp})
 
         samples = []
         decoded_tokens = output[1][0]
