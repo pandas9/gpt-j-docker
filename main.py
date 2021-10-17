@@ -29,7 +29,7 @@ class GPTJModel:
 
         per_replica_batch = params["per_replica_batch"]
         cores_per_replica = params["cores_per_replica"]
-        seq = params["seq"]
+        self.seq = params["seq"]
 
         params["sampler"] = nucleaus_sample
         # scale the optimizer to 0 from the model (as we don't need them for inference)
@@ -52,7 +52,7 @@ class GPTJModel:
         tokens = self.tokenizer.encode(context)
 
         provided_ctx = len(tokens)
-        pad_amount = seq - provided_ctx
+        pad_amount = self.seq - provided_ctx
 
         padded_tokens = np.pad(tokens, ((pad_amount, 0),)).astype(np.uint32)
         batched_tokens = np.array([padded_tokens] * self.total_batch)
