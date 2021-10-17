@@ -41,6 +41,8 @@ class GPTJModel:
 
         maps.thread_resources.env = maps.ResourceEnv(maps.Mesh(devices, ('dp', 'mp')))
 
+        print('Loading checkpoint..')
+
         tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
         total_batch = per_replica_batch * jax.device_count() # cores_per_replica
         network = CausalTransformer(params)

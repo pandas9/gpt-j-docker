@@ -21,4 +21,4 @@ RUN mv ./step_383500/ ./checkpoints/step_383500/
 
 ENTRYPOINT ["python3"]
 
-CMD ["main.py ""My name is"" "]
+CMD ["main.py" , "My name is"]
