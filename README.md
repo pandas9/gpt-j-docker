@@ -4,7 +4,7 @@ simple implementation to run gpt-j anywhere
 # Running
 inside terminal execute <br />
 docker build -t gpt-j . <br />
-docker run -d -p 8080:8080 gpt-j <br />
+docker run -i -t gpt-j <br />
 
 # Dependencies
 Note this library has some specific requirements for JAX version. Specifically, to use the v1 models (including GPT-J 6B), jax==0. <br />
