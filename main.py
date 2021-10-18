@@ -65,7 +65,7 @@ class GPTJModel:
         decoded_tokens = output[1][0]
 
         for o in decoded_tokens[:, :, 0]:
-            samples.append(f"\033[1m{context}\033[0m{tokenizer.decode(o)}")
+            samples.append(f"\033[1m{context}\033[0m{self.tokenizer.decode(o)}")
 
         print(f"completion done in {time.time() - start:06}s")
 
